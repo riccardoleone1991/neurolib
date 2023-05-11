@@ -56,7 +56,6 @@ def timeIntegration(params):
         Dmat = mu.computeDelayMatrix(lengthMat, signalV)
         Dmat[np.eye(len(Dmat)) == 1] = np.zeros(len(Dmat))
     Dmat_ndt = np.around(Dmat / dt).astype(int)  # delay matrix in multiples of dt
-    params["Dmat_ndt"] = Dmat_ndt
     # ------------------------------------------------------------------------
 
     # Initialization
@@ -206,4 +205,4 @@ def timeIntegration_njit_elementwise(
             ys[no, i] = ys[no, i - 1] + dt * y_rhs + np.sqrt(dt) * sigma * np.random.randn()  # mV/ms
 
 
-    return t, xs, ys, np.nan, np.nan
+    return t, xs, ys

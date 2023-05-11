@@ -24,11 +24,7 @@ def loadDefaultParams(Cmat=None, Dmat=None, seed=None):
     params.duration = 2000  # Simulation duration (ms)
     np.random.seed(seed)  # seed for RNG of noise and ICs
     # set seed to 0 if None, pypet will complain otherwise
-    params.seed = seed or 0
-
-    # make sure that seed=0 remains None
-    if seed == 0:
-        seed = None
+    params.seed = seed
 
     # ------------------------------------------------------------------------
     # global whole-brain network parameters
@@ -74,22 +70,3 @@ def loadDefaultParams(Cmat=None, Dmat=None, seed=None):
     params.y_ext = np.zeros((params.N,))
 
     return params
-
-
-def computeDelayMatrix(lengthMat, signalV, segmentLength=1):
-    """Compute the delay matrix from the fiber length matrix and the signal velocity
-
-    :param lengthMat:       A matrix containing the connection length in segment
-    :param signalV:         Signal velocity in m/s
-    :param segmentLength:   Length of a single segment in mm
-
-    :returns:    A matrix of connexion delay in ms
-    """
-
-    normalizedLenMat = lengthMat * segmentLength
-    # Interareal connection delays, Dmat(i,j) in ms
-    if signalV > 0:
-        Dmat = normalizedLenMat / signalV
-    else:
-        Dmat = lengthMat * 0.0
-    return Dmat

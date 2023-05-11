@@ -8,7 +8,7 @@ class PhenoHopfModel(Model):
     Stuart-Landau model with Hopf bifurcation.
     """
 
-    name = "hopf"
+    name = "Phenomenological hopf"
     description = "Stuart-Landau model with Hopf bifurcation"
 
     init_vars = ["xs_init", "ys_init"]
@@ -20,7 +20,7 @@ class PhenoHopfModel(Model):
 
     # because this is not a rate model, the input
     # to the bold model must be transformed
-    #boldInputTransform = lambda self, x: (x + 1) * 4
+    boldInputTransform = lambda self, x: (x + 1) * 4
 
     def __init__(self, params=None, Cmat=None, Dmat=None, seed=None):
 
