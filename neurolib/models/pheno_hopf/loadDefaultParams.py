@@ -33,20 +33,23 @@ def loadDefaultParams(Cmat=None, Dmat=None, seed=None):
     # the coupling parameter determines how nodes are coupled.
     # "diffusive" for diffusive coupling, "additive" for additive coupling
     params.coupling = "diffusive"
-
-    params.signalV = 20.0
+    
+    # We don't use neither of signalV nor lengthMat
+    # params.signalV = 20.0
+    # params.lengthMat = 0
     params.K_gl = 0.6  # global coupling strength
-
+    params.Dmat_weight = 0.0 # the number of dt you multiply the % of disconnection matrix with
+    
     if Cmat is None:
         params.N = 1
         params.Cmat = np.zeros((1, 1))
-        params.lengthMat = np.zeros((1, 1))
+        params.Dmat = np.zeros((1, 1))
 
     else:
         params.Cmat = Cmat.copy()  # coupling matrix
         np.fill_diagonal(params.Cmat, 0)  # no self connections
         params.N = len(params.Cmat)  # number of nodes
-        params.lengthMat = Dmat
+        params.Dmat = Dmat.copy()
 
     # ------------------------------------------------------------------------
     # local node parameters

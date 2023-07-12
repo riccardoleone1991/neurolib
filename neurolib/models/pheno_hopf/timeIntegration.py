@@ -35,9 +35,11 @@ def timeIntegration(params):
     Cmat = params["Cmat"]
     N = len(Cmat)  # Number of nodes
     K_gl = params["K_gl"]  # global coupling strength
-    # Interareal connection delay
-    lengthMat = params["lengthMat"]
-    signalV = params["signalV"]
+    Dmat = params["Dmat"]
+    Dmat_weight = params["Dmat_weight"] # Number of dt to multiply the % of the disconnection matrix with 
+    # Interareal connection delay, we don't use them this way...
+    # lengthMat = params["lengthMat"]
+    # signalV = params["signalV"]
 
     # Additive or diffusive coupling scheme
     coupling = params["coupling"]
@@ -52,10 +54,18 @@ def timeIntegration(params):
     if N == 1:
         Dmat = np.zeros((N, N))
     else:
-        # Interareal connection delays, Dmat(i,j) Connnection from jth node to ith (ms)
-        Dmat = mu.computeDelayMatrix(lengthMat, signalV)
-        Dmat[np.eye(len(Dmat)) == 1] = np.zeros(len(Dmat))
-    Dmat_ndt = np.around(Dmat / dt).astype(int)  # delay matrix in multiples of dt
+        # Used to be: interareal connection delays, Dmat(i,j) Connnection from jth node to ith (ms)
+        # We are now using the pct_spared_sc that is == 1 where there was a connection and there is no damage and a number < 100
+        # wherever there was damage, proportional to the damage --> very high damage to the tract --> number close to 0.
+        # We take the inverse of the damage, so that if the spared connection was 0.8, this corresponds to a delay of 0.2 * Dmat_weight, 
+        # if the spared connection was 0.7, then the delay is 0.3 * Dmat_weight and so on, so that the lower the spared connection, the 
+        # higher the delay.
+        Dmat_inv = 1 - Dmat
+        # We now just multiply this with Dmat_weight which is the number of dt we want to test.  
+        Dmat = np.around(Dmat_weight * Dmat_inv) # it was: mu.computeDelayMatrix(lengthMat, signalV)
+        # We already did 1-Dmat so we don't need this, as where there is no damage (1 in the spared_sc_matrix), there is no delay:  Dmat[np.eye(len(Dmat)) == 1] = np.zeros(len(Dmat))
+    Dmat_ndt = Dmat.astype(int)
+    # Dmat_ndt = np.around(Dmat / dt).astype(int)  # delay matrix in multiples of dt
     # ------------------------------------------------------------------------
 
     # Initialization
@@ -114,7 +124,6 @@ def timeIntegration(params):
         Cmat,
         Dmat,
         K_gl,
-        signalV,
         coupling,
         Dmat_ndt,
         xs,
@@ -146,7 +155,6 @@ def timeIntegration_njit_elementwise(
     Cmat,
     Dmat,
     K_gl,
-    signalV,
     coupling,
     Dmat_ndt,
     xs,
